@@ -10,6 +10,7 @@ import {
   type AcStats,
 } from "@/lib/stats";
 import DateFilterBar from "@/components/DateFilterBar";
+import { buildCSV, buildEmailText, buildReportHTML, downloadText, printHTML, todayStamp } from "@/lib/report";
 
 function AcCard({ name, st, cls, vc }: { name: string; st: AcStats; cls: string; vc: string }) {
   return (
@@ -85,11 +86,13 @@ export default function Summary({
   unavail,
   filter,
   onFilterChange,
+  onToast,
 }: {
   sessions: Session[];
   unavail: UnavailPeriod[];
   filter: DateFilter;
   onFilterChange: (f: DateFilter) => void;
+  onToast: (msg: string, type: "success" | "error") => void;
 }) {
   const fSess = filterByDate(sessions, "entry", filter);
   const fUnavail = filterByDate(unavail, "start", filter);
@@ -103,6 +106,34 @@ export default function Summary({
   return (
     <>
       <DateFilterBar filter={filter} onChange={onFilterChange} />
+      <div className="email-toolbar">
+        <button
+          className="btn btn-copy"
+          onClick={() =>
+            navigator.clipboard
+              .writeText(buildEmailText(sessions, unavail, filter))
+              .then(() => onToast("Report copied!", "success"))
+              .catch(() => onToast("Copy failed.", "error"))
+          }
+        >
+          📋 Copy text
+        </button>
+        <button
+          className="btn btn-outline"
+          onClick={() => downloadText(buildEmailText(sessions, unavail, filter), `hangar-usage-report-${todayStamp()}.txt`, "text/plain")}
+        >
+          ⬇ .txt
+        </button>
+        <button
+          className="btn btn-outline"
+          onClick={() => downloadText(buildCSV(sessions, filter), `hangar-sessions-${todayStamp()}.csv`, "text/csv")}
+        >
+          📊 CSV
+        </button>
+        <button className="btn btn-primary" onClick={() => printHTML(buildReportHTML(sessions, unavail, filter))}>
+          🖨 Export PDF
+        </button>
+      </div>
       <div className="summary-grid">
         <AcCard name="N254AL" st={s1} cls="n254" vc="val-blue" />
         <AcCard name="N253AL" st={s2} cls="n253" vc="val-gold" />

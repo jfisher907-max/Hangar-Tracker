@@ -101,6 +101,38 @@ export async function moveAircraft(current: Session): Promise<void> {
   if (ins.error) throw ins.error;
 }
 
+// One-tap board action: set a jet's current location.
+// target: "Wings Hangar" | "ALNW" | "Out". Closes any open session, then opens a
+// new one unless the jet is going Out. No-op if already in the target hangar.
+export async function setJetLocation(
+  aircraft: string,
+  openSession: Session | undefined,
+  target: string,
+): Promise<void> {
+  if (openSession && openSession.hangar === target) return;
+  const now = new Date().toISOString();
+  if (openSession) {
+    const upd = await supabase
+      .from("sessions")
+      .update({ exit: now, exit_reason: target === "Out" ? "Departed" : "Aircraft moved", exit_note: "" })
+      .eq("id", openSession.id);
+    if (upd.error) throw upd.error;
+  }
+  if (target !== "Out") {
+    const ins = await supabase.from("sessions").insert({
+      aircraft,
+      hangar: target,
+      entry: now,
+      exit: null,
+      reason: openSession ? "Aircraft moved" : "",
+      note: "",
+      exit_reason: "",
+      exit_note: "",
+    });
+    if (ins.error) throw ins.error;
+  }
+}
+
 export async function logSession(input: {
   aircraft: string;
   hangar: string;

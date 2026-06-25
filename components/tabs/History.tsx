@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { AIRCRAFT, HANGARS, type Session, type UnavailPeriod } from "@/lib/types";
-import { fmtDT, fmtDur } from "@/lib/stats";
+import { AIRCRAFT, HANGARS, type DateFilter, type Session, type UnavailPeriod } from "@/lib/types";
+import { filterByDate, fmtDT, fmtDur } from "@/lib/stats";
+import DateFilterBar from "@/components/DateFilterBar";
 
 export default function History({
   sessions,
@@ -21,17 +22,21 @@ export default function History({
 }) {
   const [filterAc, setFilterAc] = useState<string>("All");
   const [filterHangar, setFilterHangar] = useState<string>("All");
+  const [dateFilter, setDateFilter] = useState<DateFilter>({ preset: "all", start: null, end: null });
   const [tab, setTab] = useState<"sessions" | "unavail">("sessions");
 
-  let filtered = [...sessions];
+  let filtered = filterByDate(sessions, "entry", dateFilter);
   if (filterAc !== "All") filtered = filtered.filter((s) => s.aircraft === filterAc);
   if (filterHangar !== "All") filtered = filtered.filter((s) => s.hangar === filterHangar);
   filtered.sort((a, b) => new Date(b.entry).getTime() - new Date(a.entry).getTime());
 
-  const sortedU = [...unavail].sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime());
+  const sortedU = filterByDate(unavail, "start", dateFilter).sort(
+    (a, b) => new Date(b.start).getTime() - new Date(a.start).getTime(),
+  );
 
   return (
     <>
+      <DateFilterBar filter={dateFilter} onChange={setDateFilter} />
       <div className="filter-bar" style={{ marginBottom: 16 }}>
         <select className="filter-select" value={filterAc} onChange={(e) => setFilterAc(e.target.value)}>
           <option value="All">All Aircraft</option>
