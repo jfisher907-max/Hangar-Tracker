@@ -105,7 +105,7 @@ export default function Summary({
 
   return (
     <>
-      <DateFilterBar filter={filter} onChange={onFilterChange} />
+      <DateFilterBar filter={filter} onChange={onFilterChange} presets={["all", "last_30", "custom"]} />
       <div className="email-toolbar">
         <button
           className="btn btn-copy"

@@ -14,17 +14,20 @@ const PRESETS: { key: Preset; label: string }[] = [
 export default function DateFilterBar({
   filter,
   onChange,
+  presets,
 }: {
   filter: DateFilter;
   onChange: (f: DateFilter) => void;
+  presets?: Preset[]; // when given, only these preset buttons are shown
 }) {
+  const shown = presets ? PRESETS.filter((p) => presets.includes(p.key)) : PRESETS;
   return (
     <div className="date-filter-bar">
       <div className="sl" style={{ marginBottom: 9 }}>
         Date Range
       </div>
       <div className="preset-row">
-        {PRESETS.map((p) => (
+        {shown.map((p) => (
           <button
             key={p.key}
             className={`preset-btn${filter.preset === p.key ? " active" : ""}`}
