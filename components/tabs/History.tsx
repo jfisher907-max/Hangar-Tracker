@@ -9,15 +9,19 @@ export default function History({
   sessions,
   unavail,
   onExit,
+  onEditSession,
   onDeleteSession,
   onEndUnavail,
+  onEditUnavail,
   onDeleteUnavail,
 }: {
   sessions: Session[];
   unavail: UnavailPeriod[];
   onExit: (session: Session) => void;
+  onEditSession: (session: Session) => void;
   onDeleteSession: (id: string) => void;
   onEndUnavail: (id: string) => void;
+  onEditUnavail: (period: UnavailPeriod) => void;
   onDeleteUnavail: (id: string) => void;
 }) {
   const [filterAc, setFilterAc] = useState<string>("All");
@@ -110,7 +114,10 @@ export default function History({
                       Exit
                     </button>
                   )}
-                  <button className="btn btn-ghost" onClick={() => onDeleteSession(s.id)}>
+                  <button className="btn btn-ghost" title="Edit" onClick={() => onEditSession(s)}>
+                    ✎
+                  </button>
+                  <button className="btn btn-ghost" title="Delete" onClick={() => onDeleteSession(s.id)}>
                     ✕
                   </button>
                 </div>
@@ -159,7 +166,10 @@ export default function History({
                     End
                   </button>
                 )}
-                <button className="btn btn-ghost" onClick={() => onDeleteUnavail(u.id)}>
+                <button className="btn btn-ghost" title="Edit" onClick={() => onEditUnavail(u)}>
+                  ✎
+                </button>
+                <button className="btn btn-ghost" title="Delete" onClick={() => onDeleteUnavail(u.id)}>
                   ✕
                 </button>
               </div>

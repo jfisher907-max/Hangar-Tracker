@@ -172,6 +172,28 @@ export async function confirmExit(
   if (error) throw error;
 }
 
+// Edit an existing session. Writes the reason/note to both the entry and exit
+// fields so the value shows regardless of which the row display prefers.
+export async function updateSession(
+  id: string,
+  input: { aircraft: string; hangar: string; entry: string; exit: string; reason: string; note: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from("sessions")
+    .update({
+      aircraft: input.aircraft,
+      hangar: input.hangar,
+      entry: new Date(input.entry).toISOString(),
+      exit: input.exit ? new Date(input.exit).toISOString() : null,
+      reason: input.reason || "",
+      exit_reason: input.reason || "",
+      note: input.note || "",
+      exit_note: input.note || "",
+    })
+    .eq("id", id);
+  if (error) throw error;
+}
+
 export async function deleteSession(id: string): Promise<void> {
   const { error } = await supabase.from("sessions").delete().eq("id", id);
   if (error) throw error;
@@ -191,6 +213,21 @@ export async function endUnavailNow(id: string): Promise<void> {
   const { error } = await supabase
     .from("unavailability")
     .update({ end_time: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw error;
+}
+
+export async function updateUnavail(
+  id: string,
+  input: { start: string; end: string; note: string },
+): Promise<void> {
+  const { error } = await supabase
+    .from("unavailability")
+    .update({
+      start_time: new Date(input.start).toISOString(),
+      end_time: input.end ? new Date(input.end).toISOString() : null,
+      note: input.note || "",
+    })
     .eq("id", id);
   if (error) throw error;
 }

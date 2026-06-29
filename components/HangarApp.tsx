@@ -20,7 +20,9 @@ import Settings from "@/components/tabs/Settings";
 import ExitModal from "@/components/ExitModal";
 import PastMoveModal from "@/components/PastMoveModal";
 import PastUnavailModal from "@/components/PastUnavailModal";
-import type { DateFilter } from "@/lib/types";
+import EditSessionModal from "@/components/EditSessionModal";
+import EditUnavailModal from "@/components/EditUnavailModal";
+import type { DateFilter, UnavailPeriod } from "@/lib/types";
 
 type TabKey = "home" | "history" | "reports" | "data";
 
@@ -47,6 +49,8 @@ export default function HangarApp({ onLock }: { onLock: () => void }) {
   const [exitTarget, setExitTarget] = useState<Session | null>(null);
   const [pastMove, setPastMove] = useState(false);
   const [pastUnavail, setPastUnavail] = useState(false);
+  const [editSession, setEditSession] = useState<Session | null>(null);
+  const [editUnavail, setEditUnavail] = useState<UnavailPeriod | null>(null);
 
   // 1s clock for live timers + header clock
   useEffect(() => {
@@ -251,8 +255,10 @@ export default function HangarApp({ onLock }: { onLock: () => void }) {
                 sessions={sessions}
                 unavail={unavail}
                 onExit={setExitTarget}
+                onEditSession={setEditSession}
                 onDeleteSession={handleDeleteSession}
                 onEndUnavail={handleEndUnavail}
+                onEditUnavail={setEditUnavail}
                 onDeleteUnavail={handleDeleteUnavail}
               />
             )}
@@ -271,6 +277,12 @@ export default function HangarApp({ onLock }: { onLock: () => void }) {
       />
       {pastMove && <PastMoveModal sessions={sessions} onClose={() => setPastMove(false)} onToast={showToast} />}
       {pastUnavail && <PastUnavailModal unavail={unavail} onClose={() => setPastUnavail(false)} onToast={showToast} />}
+      {editSession && (
+        <EditSessionModal key={editSession.id} session={editSession} onClose={() => setEditSession(null)} onToast={showToast} />
+      )}
+      {editUnavail && (
+        <EditUnavailModal key={editUnavail.id} period={editUnavail} onClose={() => setEditUnavail(null)} onToast={showToast} />
+      )}
     </div>
   );
 }
